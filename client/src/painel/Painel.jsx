@@ -31,17 +31,23 @@ export default function Painel() {
       />
     );
   }
+  // Volta pra tela de início (login), com uma mensagem opcional.
+  const exitToLogin = (msg, { forget } = {}) => {
+    setConnected(false);
+    setTryLogin(false);
+    setLoginErr(msg || "");
+    if (forget) localStorage.removeItem("modPwd");
+  };
+
   return (
     <Board
+      key={tryLogin ? "on" : "off"}
       password={password}
       socketRef={socketRef}
       connected={connected}
       setConnected={setConnected}
-      onAuthFail={() => {
-        setTryLogin(false);
-        setLoginErr("Senha incorreta ou servidor offline.");
-        localStorage.removeItem("modPwd");
-      }}
+      onAuthFail={() => exitToLogin("Senha incorreta ou servidor offline.", { forget: true })}
+      onExit={exitToLogin}
     />
   );
 }
@@ -64,7 +70,7 @@ function Login({ password, setPassword, err, onSubmit }) {
   );
 }
 
-function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
+function Board({ password, socketRef, connected, setConnected, onAuthFail, onExit }) {
   const [items, setItems] = useState([]);
   const [media, setMedia] = useState([]);
   const [over, setOver] = useState(false);
@@ -74,6 +80,8 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
   const [users, setUsers] = useState([]);
   const [showMod, setShowMod] = useState(false);
   const stageRef = useRef(null);
+  const closing = useRef(false); // distingue saída deliberada de queda de conexão
+  const exitMsg = useRef("");
 
   const canManage = role === "admin" || role === "supermod"; // envia/deleta memes
   const isAdmin = role === "admin"; // painel de moderação
@@ -90,9 +98,14 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
     });
     socket.on("welcome", ({ role, id }) => { setRole(role); setMyId(id); });
     socket.on("users:list", setUsers);
-    socket.on("kicked", () => { localStorage.removeItem("modPwd"); alert("Você foi desconectado por um admin."); });
+    socket.on("kicked", () => { exitMsg.current = "Você foi desconectado por um admin."; });
     socket.on("connect_error", onAuthFail);
-    socket.on("disconnect", () => setConnected(false));
+    socket.on("disconnect", () => {
+      setConnected(false);
+      if (closing.current) return; // unmount/troca de tela: não faz nada
+      // Queda de conexão ou expulsão -> volta pra tela de início.
+      onExit(exitMsg.current || "Conexão com o servidor encerrada.", { forget: !!exitMsg.current });
+    });
 
     for (const ev of ["scene:init", "scene:add", "scene:update", "scene:remove", "scene:clear"]) {
       socket.on(ev, (payload) => applySceneEvent(setItems, ev, payload));
@@ -104,7 +117,7 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
     socket.on("media:volume", ({ id, volume }) =>
       setMedia((prev) => prev.map((x) => (x.id === id ? { ...x, volume } : x))));
 
-    return () => socket.close();
+    return () => { closing.current = true; socket.close(); };
   }, []);
 
   const emit = (ev, payload) => socketRef.current?.emit(ev, payload);
@@ -245,39 +258,14 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
       <div className="tray">
         {media.length === 0 && <p style={{ opacity: 0.6 }}>Envie memes no "+ Enviar meme" ou solte arquivos na pasta /media.</p>}
         {media.map((m) => (
-          <div
+          <MediaTile
             key={m.id}
-            className="tile"
-            draggable
-            onDragStart={(e) => e.dataTransfer.setData("application/json", JSON.stringify(m))}
-            onClick={() => clickTile(m)}
-            title={m.name}
-          >
-            {canManage && (
-              <button
-                className="rm"
-                draggable={false}
-                onClick={(e) => { e.stopPropagation(); deleteMedia(m); }}
-                title="Remover meme"
-              >✕</button>
-            )}
-            {m.type === "image" && <img src={m.url} alt="" />}
-            {m.type === "video" && <video src={m.url} muted preload="metadata" />}
-            {m.type === "audio" && <span className="ico">🔊</span>}
-            <span className="label">{m.name}</span>
-            {canManage && (m.type === "audio" || m.type === "video") && (
-              <input
-                className="vol"
-                type="range" min="0" max="1" step="0.05"
-                value={m.volume ?? 1}
-                title={`Volume: ${Math.round((m.volume ?? 1) * 100)}%`}
-                draggable={false}
-                onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                onChange={(e) => setVolume(m, Number(e.target.value))}
-              />
-            )}
-          </div>
+            m={m}
+            canManage={canManage}
+            onUse={() => clickTile(m)}
+            onDelete={() => deleteMedia(m)}
+            onVolume={(v) => setVolume(m, v)}
+          />
         ))}
       </div>
     </div>
@@ -344,6 +332,52 @@ function PlacedItem({ item, stageRef, onChange, onRemove }) {
         onPointerMove={onResizeMove}
         onPointerUp={onResizeUp}
       />
+    </div>
+  );
+}
+
+function MediaTile({ m, canManage, onUse, onDelete, onVolume }) {
+  // Quando a interação começa no slider, não inicia o arrastar da tile.
+  const onSlider = useRef(false);
+  const hasVolume = m.type === "audio" || m.type === "video";
+
+  return (
+    <div
+      className="tile"
+      draggable
+      onDragStart={(e) => {
+        if (onSlider.current) { e.preventDefault(); return; }
+        e.dataTransfer.setData("application/json", JSON.stringify(m));
+      }}
+      onClick={() => { if (!onSlider.current) onUse(); }}
+      title={m.name}
+    >
+      {canManage && (
+        <button
+          className="rm"
+          draggable={false}
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          title="Remover meme"
+        >✕</button>
+      )}
+      {m.type === "image" && <img src={m.url} alt="" />}
+      {m.type === "video" && <video src={m.url} muted preload="metadata" />}
+      {m.type === "audio" && <span className="ico">🔊</span>}
+      <span className="label">{m.name}</span>
+      {canManage && hasVolume && (
+        <input
+          className="vol"
+          type="range" min="0" max="1" step="0.05"
+          value={m.volume ?? 1}
+          title={`Volume: ${Math.round((m.volume ?? 1) * 100)}%`}
+          draggable={false}
+          onPointerDown={(e) => { onSlider.current = true; e.stopPropagation(); }}
+          onPointerUp={() => { onSlider.current = false; }}
+          onPointerCancel={() => { onSlider.current = false; }}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => onVolume(Number(e.target.value))}
+        />
+      )}
     </div>
   );
 }

@@ -13,7 +13,8 @@ export default function Overlay() {
     socketRef.current = socket;
 
     socket.on("connect", () => setStatus("online"));
-    socket.on("connect_error", () => setStatus("erro de auth — confira o ?token="));
+    socket.on("connect_error", (err) =>
+      setStatus(err?.message === "auth_failed" ? "token inválido — confira o ?token=" : "sem conexão com o servidor"));
     socket.on("disconnect", () => setStatus("desconectado"));
 
     for (const ev of ["scene:init", "scene:add", "scene:update", "scene:remove", "scene:clear"]) {
@@ -31,41 +32,30 @@ export default function Overlay() {
 
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-      {/* Palco 16:9 centralizado: mesma proporção do painel = posições idênticas.
-          No OBS a 1920x1080 ele preenche a tela inteira. */}
-      <div
-        style={{
+      {/* Preenche 100% da Browser Source: canto = canto. Defina a fonte como
+          1920x1080 no OBS para casar pixel-a-pixel com o palco do painel (16:9). */}
+      {items.map((it) => {
+        const style = {
           position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "min(100vw, 177.78vh)",
-          aspectRatio: "16 / 9",
-        }}
-      >
-        {items.map((it) => {
-          const style = {
-            position: "absolute",
-            left: `${it.x * 100}%`,
-            top: `${it.y * 100}%`,
-            width: `${it.size * 100}%`,
-            filter: "drop-shadow(0 8px 24px rgba(0,0,0,.5))",
-          };
-          if (it.type === "image") return <img key={it.uid} src={it.url} alt="" style={style} />;
-          if (it.type === "video")
-            // Autoplay com som funciona no Browser Source do OBS (não muta).
-            return (
-              <video
-                key={it.uid}
-                src={it.url}
-                style={style}
-                autoPlay loop playsInline
-                ref={(el) => { if (el) el.volume = Math.max(0, Math.min(1, it.volume ?? 1)); }}
-              />
-            );
-          return null;
-        })}
-      </div>
+          left: `${it.x * 100}%`,
+          top: `${it.y * 100}%`,
+          width: `${it.size * 100}%`,
+          filter: "drop-shadow(0 8px 24px rgba(0,0,0,.5))",
+        };
+        if (it.type === "image") return <img key={it.uid} src={it.url} alt="" style={style} />;
+        if (it.type === "video")
+          // Autoplay com som funciona no Browser Source do OBS (não muta).
+          return (
+            <video
+              key={it.uid}
+              src={it.url}
+              style={style}
+              autoPlay loop playsInline
+              ref={(el) => { if (el) el.volume = Math.max(0, Math.min(1, it.volume ?? 1)); }}
+            />
+          );
+        return null;
+      })}
       {status !== "online" && (
         <div style={{ position: "fixed", left: 8, bottom: 6, font: "12px monospace", color: "#f55", opacity: 0.7 }}>
           overlay: {status}
