@@ -31,6 +31,12 @@ body {
 .dot { width: 10px; height: 10px; border-radius: 50%; background: #888; }
 .dot.on { background: #2ecc71; }
 .dot.off { background: #e74c3c; }
+.upload {
+  background: #6c5ce7; color: #fff;
+  padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer;
+  font-size: 14px; white-space: nowrap;
+}
+.upload:has(input:disabled) { opacity: .6; cursor: progress; }
 .panic {
   background: #e74c3c; color: #fff; border: 0;
   padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer;
@@ -57,7 +63,7 @@ body {
   touch-action: none;
 }
 .placed:active { cursor: grabbing; }
-.placed img { display: block; width: 100%; pointer-events: none; }
+.placed img, .placed video { display: block; width: 100%; pointer-events: none; }
 .placed .rm {
   position: absolute; top: -10px; right: -10px;
   width: 22px; height: 22px; border-radius: 50%;
@@ -80,6 +86,6 @@ body {
 }
 .tile:hover { border-color: #6c5ce7; }
 .tile:active { cursor: grabbing; }
-.tile img { width: 76px; height: 56px; object-fit: contain; pointer-events: none; }
+.tile img, .tile video { width: 76px; height: 56px; object-fit: contain; pointer-events: none; }
 .tile .ico { font-size: 34px; }
 .tile .label { font-size: 11px; word-break: break-word; opacity: .8; }

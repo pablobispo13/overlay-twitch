@@ -1,0 +1,10 @@
+Memes que você colocar aqui já vêm "embutidos" no deploy (vão junto no Git).
+
+Imagens: .png .jpg .jpeg .gif .webp
+Sons:    .mp3 .wav .ogg .m4a .aac
+Vídeos:  .mp4 .webm .mov
+
+Você também pode enviar memes pelo próprio painel ("+ Enviar meme").
+- Em dev (sem Cloudinary): o upload salva aqui nesta pasta.
+- Em produção com CLOUDINARY_URL definido: o upload vai pro Cloudinary
+  (persistente), porque o disco do Render/Railway é efêmero.

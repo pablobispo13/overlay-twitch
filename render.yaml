@@ -17,3 +17,7 @@ services:
         sync: false
       - key: OVERLAY_TOKEN
         sync: false
+      # Opcional: armazenamento persistente dos uploads (Cloudinary).
+      # Deixe em branco para usar a pasta local (não persiste no Render).
+      - key: CLOUDINARY_URL
+        sync: false

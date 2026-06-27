@@ -23,7 +23,8 @@
       "Bash(node -e \"console.log\\('node ve MOD_PASSWORD =', JSON.stringify\\(process.env.MOD_PASSWORD\\)\\)\")",
       "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(npm audit *)"
     ]
   }
 }

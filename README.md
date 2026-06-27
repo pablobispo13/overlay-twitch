@@ -1,7 +1,7 @@
 # Overlay Live 🎬
 
-Overlay **interativo (drag & drop)** para lives da Twitch: os mods **arrastam memes** (imagens e sons)
-para um palco e eles aparecem na live em tempo real, na posição escolhida.
+Overlay **interativo (drag & drop)** para lives da Twitch: os mods **arrastam memes**
+(imagens, vídeos e sons) para um palco e eles aparecem na live em tempo real, na posição escolhida.
 Funciona como Browser Source no OBS — sem plugin.
 
 ```
@@ -14,9 +14,10 @@ Stack: **React + Vite** (frontend) · **Express + Socket.IO** (backend).
 ## Como funciona
 
 - O painel tem um **palco** (preview 16:9 = sua tela) e uma **bandeja** de memes embaixo.
-- O mod **arrasta** um meme da bandeja pro palco → aparece na live naquela posição.
+- O mod **arrasta** uma imagem ou vídeo da bandeja pro palco → aparece na live naquela posição.
 - **Reposicionar:** arraste o meme no palco. **Redimensionar:** scroll do mouse. **Remover:** ✕ ao passar o mouse.
-- **Sons** tocam ao soltar (não ficam na tela).
+- **Sons** tocam ao soltar (não ficam na tela). **Vídeos** tocam com som no overlay (autoplay no OBS).
+- **Enviar meme:** botão no painel sobe imagem/som/vídeo na hora (veja "Armazenamento dos uploads").
 - O servidor guarda a cena atual: se o OBS recarregar, o overlay recupera tudo.
 - Vários mods veem o palco um do outro ao vivo.
 
@@ -58,10 +59,28 @@ OVERLAY_TOKEN=...     # token secreto que vai na URL do overlay (?token=)
 
 ## Adicionar memes
 
-Solte arquivos na pasta **`media/`** — o painel lista sozinho (só recarregar a página):
+Duas formas:
+
+1. **Pelo painel:** botão **"+ Enviar meme"** (envia imagem/som/vídeo na hora).
+2. **Pela pasta `media/`:** solte arquivos lá e eles já vêm embutidos no deploy (vão no Git).
+
+Formatos aceitos:
 
 - Imagens: `.png .jpg .jpeg .gif .webp`
-- Sons: `.mp3 .wav .ogg .m4a`
+- Sons: `.mp3 .wav .ogg .m4a .aac`
+- Vídeos: `.mp4 .webm .mov`
+
+### Armazenamento dos uploads (Cloudinary — grátis)
+
+O disco do Render/Railway é **efêmero**: arquivos enviados em runtime somem no próximo
+deploy/restart. Para persistir, use o **Cloudinary** (free tier: 25 GB):
+
+1. Crie conta grátis em [cloudinary.com](https://cloudinary.com).
+2. No Dashboard, copie o valor de **"API Environment variable"** (formato `cloudinary://...`).
+3. Defina a env var `CLOUDINARY_URL` (no `.env` local ou no painel do Render/Railway).
+
+Com `CLOUDINARY_URL` definido, os uploads vão pro Cloudinary (persistente).
+Sem ele, caem na pasta local `media/` — ótimo para dev, mas não persiste no deploy.
 
 ## Configurar no OBS
 
@@ -69,7 +88,8 @@ Solte arquivos na pasta **`media/`** — o painel lista sozinho (só recarregar 
 2. URL: `http://localhost:3000/overlay.html?token=SEU_TOKEN` (use a versão de produção).
 3. Largura/Altura: 1920 x 1080.
 4. O fundo já é transparente.
-5. Áudio do Browser Source toca dentro do OBS — confira o mixer.
+5. Áudio (sons e vídeos) do Browser Source toca dentro do OBS — confira o mixer.
+   Vídeos dão autoplay com som no OBS automaticamente (no navegador comum o som fica mudo até interagir).
 
 ## Colocar online (mods remotos)
 
@@ -82,7 +102,8 @@ Solte arquivos na pasta **`media/`** — o painel lista sozinho (só recarregar 
 1. Suba o projeto pro GitHub.
 2. No Render: **New +** → **Blueprint** → escolha o repositório.
 3. O Render lê o `render.yaml` e configura build/start sozinho.
-4. Em **Environment**, defina `MOD_PASSWORD` e `OVERLAY_TOKEN` (valores fortes).
+4. Em **Environment**, defina `MOD_PASSWORD` e `OVERLAY_TOKEN` (valores fortes) e,
+   para uploads persistentes, `CLOUDINARY_URL` (veja "Armazenamento dos uploads").
 5. Deploy. Use a URL pública (`https://seu-app.onrender.com/overlay.html?token=...`) no OBS.
 
 > Plano free do Render hiberna após ~15 min sem acesso (cold start de ~30–60s ao

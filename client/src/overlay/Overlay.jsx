@@ -31,22 +31,20 @@ export default function Overlay() {
 
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
-      {items.map((it) =>
-        it.type === "image" ? (
-          <img
-            key={it.uid}
-            src={it.url}
-            alt=""
-            style={{
-              position: "absolute",
-              left: `${it.x * 100}%`,
-              top: `${it.y * 100}%`,
-              width: `${it.size * 100}%`,
-              filter: "drop-shadow(0 8px 24px rgba(0,0,0,.5))",
-            }}
-          />
-        ) : null
-      )}
+      {items.map((it) => {
+        const style = {
+          position: "absolute",
+          left: `${it.x * 100}%`,
+          top: `${it.y * 100}%`,
+          width: `${it.size * 100}%`,
+          filter: "drop-shadow(0 8px 24px rgba(0,0,0,.5))",
+        };
+        if (it.type === "image") return <img key={it.uid} src={it.url} alt="" style={style} />;
+        if (it.type === "video")
+          // Autoplay com som funciona no Browser Source do OBS (não muta).
+          return <video key={it.uid} src={it.url} style={style} autoPlay loop playsInline />;
+        return null;
+      })}
       {status !== "online" && (
         <div style={{ position: "fixed", left: 8, bottom: 6, font: "12px monospace", color: "#f55", opacity: 0.7 }}>
           overlay: {status}

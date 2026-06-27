@@ -59,6 +59,7 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
   const [items, setItems] = useState([]);
   const [media, setMedia] = useState([]);
   const [over, setOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const stageRef = useRef(null);
 
   // Conecta como mod e escuta a cena compartilhada.
@@ -82,9 +83,9 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
 
   const emit = (ev, payload) => socketRef.current?.emit(ev, payload);
 
-  // Adiciona uma imagem na cena (posição = centro do item em x,y).
-  function addImage(m, x, y) {
-    const item = { uid: uid(), mediaId: m.id, url: m.url, type: "image",
+  // Adiciona imagem ou vídeo na cena (posição = centro do item em x,y).
+  function addPlaced(m, x, y) {
+    const item = { uid: uid(), mediaId: m.id, url: m.url, type: m.type,
       x: clamp(x - DEFAULT_SIZE / 2, 0, 1), y: clamp(y - DEFAULT_SIZE / 2, 0, 1), size: DEFAULT_SIZE };
     setItems((prev) => [...prev, item]);
     emit("scene:add", item);
@@ -110,13 +111,33 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
     if (m.type === "audio") emit("sfx:play", { url: m.url, volume: 1 });
-    else addImage(m, x, y);
+    else addPlaced(m, x, y);
   }
 
-  // Clique na bandeja: imagem vai pro centro, som toca na hora.
+  // Clique na bandeja: imagem/vídeo vai pro centro, som toca na hora.
   function clickTile(m) {
     if (m.type === "audio") emit("sfx:play", { url: m.url, volume: 1 });
-    else addImage(m, 0.5, 0.5);
+    else addPlaced(m, 0.5, 0.5);
+  }
+
+  // Upload de memes (imagem/som/vídeo) direto pelo painel.
+  async function uploadFiles(fileList) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    setUploading(true);
+    for (const file of files) {
+      const fd = new FormData();
+      fd.append("file", file);
+      try {
+        const r = await fetch("/api/upload", { method: "POST", headers: { "x-mod-password": password }, body: fd });
+        if (!r.ok) { console.warn("upload falhou:", file.name, r.status); continue; }
+        const m = await r.json();
+        setMedia((prev) => (prev.some((x) => x.id === m.id) ? prev : [m, ...prev]));
+      } catch (e) {
+        console.warn("erro no upload:", e);
+      }
+    }
+    setUploading(false);
   }
 
   return (
@@ -124,6 +145,17 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
       <div className="bar">
         <span className={`dot ${connected ? "on" : "off"}`} />
         <h1>Painel — arraste os memes pro palco</h1>
+        <label className="upload">
+          {uploading ? "Enviando…" : "+ Enviar meme"}
+          <input
+            type="file"
+            accept="image/*,audio/*,video/*"
+            multiple
+            hidden
+            disabled={uploading}
+            onChange={(e) => { uploadFiles(e.target.files); e.target.value = ""; }}
+          />
+        </label>
         <button className="panic" onClick={() => { setItems([]); emit("scene:clear"); }}>
           LIMPAR TUDO
         </button>
@@ -146,7 +178,7 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
       </p>
 
       <div className="tray">
-        {media.length === 0 && <p style={{ opacity: 0.6 }}>Solte memes na pasta /media do servidor.</p>}
+        {media.length === 0 && <p style={{ opacity: 0.6 }}>Envie memes no "+ Enviar meme" ou solte arquivos na pasta /media.</p>}
         {media.map((m) => (
           <div
             key={m.id}
@@ -156,7 +188,9 @@ function Board({ password, socketRef, connected, setConnected, onAuthFail }) {
             onClick={() => clickTile(m)}
             title={m.name}
           >
-            {m.type === "image" ? <img src={m.url} alt="" /> : <span className="ico">🔊</span>}
+            {m.type === "image" && <img src={m.url} alt="" />}
+            {m.type === "video" && <video src={m.url} muted preload="metadata" />}
+            {m.type === "audio" && <span className="ico">🔊</span>}
             <span className="label">{m.name}</span>
           </div>
         ))}
@@ -199,7 +233,9 @@ function PlacedItem({ item, stageRef, onChange, onRemove }) {
       onWheel={onWheel}
     >
       <button className="rm" onPointerDown={(e) => e.stopPropagation()} onClick={onRemove}>✕</button>
-      <img src={item.url} alt="" />
+      {item.type === "video"
+        ? <video src={item.url} muted loop autoPlay playsInline />
+        : <img src={item.url} alt="" />}
     </div>
   );
 }
