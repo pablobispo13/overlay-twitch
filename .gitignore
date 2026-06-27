@@ -1,6 +1,7 @@
 node_modules/
 .env
 dist/
+volumes.json
 # memes pessoais (descomente se não quiser versionar)
 # media/*
 # !media/LEIA-ME.txt

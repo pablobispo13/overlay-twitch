@@ -24,7 +24,10 @@
       "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
       "WebFetch(domain:github.com)",
-      "Bash(npm audit *)"
+      "Bash(npm audit *)",
+      "Bash(printf 'fake-audio-bytes')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -H \"x-mod-password: supermoderador\" -F \"file=@/tmp/teste.mp3\" http://localhost:3000/api/upload)",
+      "Bash(rm -f /tmp/teste.mp3)"
     ]
   }
 }

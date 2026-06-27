@@ -31,6 +31,19 @@ body {
 .dot { width: 10px; height: 10px; border-radius: 50%; background: #888; }
 .dot.on { background: #2ecc71; }
 .dot.off { background: #e74c3c; }
+.badge {
+  font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+  background: #33333f; color: #ccc; white-space: nowrap;
+}
+.badge.admin { background: #e74c3c; color: #fff; }
+.badge.supermod { background: #6c5ce7; color: #fff; }
+.badge.mod { background: #2d8f5a; color: #fff; }
+.badge.overlay { background: #444; color: #ddd; }
+.ghost {
+  background: transparent; color: #ccc; border: 1px solid #44444f;
+  padding: 7px 12px; border-radius: 8px; font-weight: 600; white-space: nowrap;
+}
+.ghost:hover { border-color: #6c5ce7; color: #fff; }
 .upload {
   background: #6c5ce7; color: #fff;
   padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer;
@@ -71,6 +84,13 @@ body {
   font-size: 13px; line-height: 1; cursor: pointer; display: none;
 }
 .placed:hover .rm { display: block; }
+.placed .resize {
+  position: absolute; right: -7px; bottom: -7px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #6c5ce7; border: 2px solid #15151b;
+  cursor: nwse-resize; display: none; touch-action: none;
+}
+.placed:hover .resize { display: block; }
 
 /* ---- Bandeja de memes ---- */
 .tray {
@@ -80,12 +100,45 @@ body {
   margin-top: 16px;
 }
 .tile {
+  position: relative;
   background: #23232f; border: 1px solid #33333f; border-radius: 10px;
   padding: 8px; text-align: center; cursor: grab;
   display: flex; flex-direction: column; gap: 6px; align-items: center;
 }
 .tile:hover { border-color: #6c5ce7; }
+.tile .rm {
+  position: absolute; top: -8px; right: -8px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #e74c3c; color: #fff; border: 2px solid #15151b;
+  font-size: 12px; line-height: 1; cursor: pointer; display: none; padding: 0;
+}
+.tile:hover .rm { display: block; }
 .tile:active { cursor: grabbing; }
 .tile img, .tile video { width: 76px; height: 56px; object-fit: contain; pointer-events: none; }
 .tile .ico { font-size: 34px; }
 .tile .label { font-size: 11px; word-break: break-word; opacity: .8; }
+.tile .vol {
+  width: 100%; margin: 0; accent-color: #6c5ce7; cursor: pointer;
+}
+
+/* ---- Modal de moderação ---- */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.modal {
+  background: #1e1e28; border: 1px solid #33333f; border-radius: 12px;
+  width: min(620px, 92vw); max-height: 80vh; overflow: auto; padding: 18px;
+}
+.modal-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.modal-head h2 { font-size: 16px; margin: 0; flex: 1; }
+.users { width: 100%; border-collapse: collapse; font-size: 14px; }
+.users th { text-align: left; opacity: .6; font-weight: 600; padding: 6px 8px; }
+.users td { padding: 8px; border-top: 1px solid #2a2a36; }
+.users tr.me { background: #23233040; }
+.users .ip { font-family: monospace; opacity: .8; }
+.users .muted { opacity: .5; font-size: 13px; }
+.kick {
+  background: #e74c3c; color: #fff; border: 0;
+  padding: 6px 12px; border-radius: 7px; font-weight: 600; cursor: pointer;
+}

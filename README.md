@@ -15,11 +15,23 @@ Stack: **React + Vite** (frontend) · **Express + Socket.IO** (backend).
 
 - O painel tem um **palco** (preview 16:9 = sua tela) e uma **bandeja** de memes embaixo.
 - O mod **arrasta** uma imagem ou vídeo da bandeja pro palco → aparece na live naquela posição.
-- **Reposicionar:** arraste o meme no palco. **Redimensionar:** scroll do mouse. **Remover:** ✕ ao passar o mouse.
+- **Reposicionar:** arraste o meme. **Redimensionar:** alça roxa no canto (ou scroll do mouse). **Remover:** ✕ ao passar o mouse.
 - **Sons** tocam ao soltar (não ficam na tela). **Vídeos** tocam com som no overlay (autoplay no OBS).
 - **Enviar meme:** botão no painel sobe imagem/som/vídeo na hora (veja "Armazenamento dos uploads").
 - O servidor guarda a cena atual: se o OBS recarregar, o overlay recupera tudo.
-- Vários mods veem o palco um do outro ao vivo.
+- Vários mods veem o palco um do outro (e os uploads) ao vivo.
+
+### Níveis de acesso (3 senhas)
+
+| Ação | Admin | Super moderador | Moderador |
+|------|:-----:|:---------------:|:---------:|
+| Usar memes no overlay (arrastar, tocar som) | ✅ | ✅ | ✅ |
+| Enviar (upload), deletar e ajustar volume dos memes | ✅ | ✅ | ❌ |
+| Painel de moderação (ver conectados + expulsar) | ✅ | ❌ | ❌ |
+
+O painel mostra um **badge** com o seu papel. O servidor decide o papel pela senha digitada.
+**Volume:** admin/supermod ajustam o volume de cada som/vídeo pela barrinha na bandeja (reflete pra todos e no overlay).
+**Moderação:** o admin abre **🛡️ Moderação** para ver todos os conectados (papel, IP, tempo) e **expulsar** em caso de invasão.
 
 ## Rodar em desenvolvimento
 
