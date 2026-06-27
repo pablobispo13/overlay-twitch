@@ -1,0 +1,6 @@
+node_modules/
+.env
+dist/
+# memes pessoais (descomente se não quiser versionar)
+# media/*
+# !media/LEIA-ME.txt

@@ -1,0 +1,19 @@
+# Blueprint do Render. Com este arquivo no repositório, o Render configura o
+# serviço sozinho (New + > Blueprint). Você só define as senhas no painel.
+services:
+  - type: web
+    name: overlay-live
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      # Faz o npm instalar as devDependencies (vite) durante o build,
+      # mesmo com NODE_ENV=production no Render.
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
+      # Defina os valores no painel do Render (sync:false = não fica no repo).
+      - key: MOD_PASSWORD
+        sync: false
+      - key: OVERLAY_TOKEN
+        sync: false

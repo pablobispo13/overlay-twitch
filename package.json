@@ -1,0 +1,27 @@
+{
+  "name": "overlay-live",
+  "version": "0.2.0",
+  "description": "Overlay interativo (drag & drop) para lives da Twitch onde mods posicionam memes em tempo real.",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,vite -c blue,magenta \"node --env-file-if-exists=.env --watch server.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node --env-file-if-exists=.env server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.0.1",
+    "vite": "^5.4.0"
+  }
+}

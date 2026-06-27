@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(npm install *)",
+      "Bash(npm start *)",
+      "Bash(curl -s http://localhost:3000/api/media)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/painel.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3000/overlay.html?token=overlay-secreto\")",
+      "Bash(ls node_modules/socket.io-client)",
+      "Bash(cp /tmp/e2e.mjs ./_e2e.mjs)",
+      "Bash(node ./_e2e.mjs)",
+      "Bash(rm -f ./_e2e.mjs media/teste.png)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Write-Host \"Matando PID $_\"; Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }; Write-Host \"Porta 3000 liberada\")",
+      "Bash(rm -f public/overlay.html public/painel.html)",
+      "Bash(rmdir public *)",
+      "Bash(mkdir -p client/src/painel client/src/overlay)",
+      "Bash(npm run *)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique\")",
+      "Bash(ls -la .env*)",
+      "Bash(grep -rn \"senha123\" . --exclude-dir=node_modules)",
+      "Bash(node -e \"console.log\\('node ve MOD_PASSWORD =', JSON.stringify\\(process.env.MOD_PASSWORD\\)\\)\")",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #15151b;
+  color: #eee;
+}
+
+/* ---- Login ---- */
+.login {
+  max-width: 320px; margin: 80px auto; background: #1e1e28;
+  padding: 24px; border-radius: 12px; text-align: center;
+}
+.login input {
+  width: 100%; padding: 10px; margin: 12px 0; border-radius: 8px;
+  border: 1px solid #444; background: #15151b; color: #eee; font: inherit;
+}
+.login button {
+  width: 100%; padding: 10px; border: 0; border-radius: 8px;
+  background: #6c5ce7; color: #fff; font-weight: 600; cursor: pointer;
+}
+.err { color: #e74c3c; font-size: 13px; min-height: 18px; }
+
+/* ---- Layout ---- */
+.app { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.bar h1 { font-size: 16px; margin: 0; flex: 1; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #888; }
+.dot.on { background: #2ecc71; }
+.dot.off { background: #e74c3c; }
+.panic {
+  background: #e74c3c; color: #fff; border: 0;
+  padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+.hint { font-size: 12px; opacity: .6; margin: 6px 2px 14px; }
+
+/* ---- Palco (preview da live 16:9) ---- */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background:
+    repeating-conic-gradient(#1c1c24 0% 25%, #20202a 0% 50%) 50% / 32px 32px;
+  border: 1px solid #33333f;
+  border-radius: 10px;
+  overflow: hidden;
+  user-select: none;
+}
+.stage.over { border-color: #6c5ce7; box-shadow: 0 0 0 2px #6c5ce7 inset; }
+
+.placed {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+}
+.placed:active { cursor: grabbing; }
+.placed img { display: block; width: 100%; pointer-events: none; }
+.placed .rm {
+  position: absolute; top: -10px; right: -10px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #e74c3c; color: #fff; border: 2px solid #15151b;
+  font-size: 13px; line-height: 1; cursor: pointer; display: none;
+}
+.placed:hover .rm { display: block; }
+
+/* ---- Bandeja de memes ---- */
+.tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.tile {
+  background: #23232f; border: 1px solid #33333f; border-radius: 10px;
+  padding: 8px; text-align: center; cursor: grab;
+  display: flex; flex-direction: column; gap: 6px; align-items: center;
+}
+.tile:hover { border-color: #6c5ce7; }
+.tile:active { cursor: grabbing; }
+.tile img { width: 76px; height: 56px; object-fit: contain; pointer-events: none; }
+.tile .ico { font-size: 34px; }
+.tile .label { font-size: 11px; word-break: break-word; opacity: .8; }
